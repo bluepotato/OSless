@@ -1,0 +1,61 @@
+;;;;;;;;;;;;;;;;;;;
+; Bootup secuence ;
+;;;;;;;;;;;;;;;;;;;
+:kickstarter
+
+    ; Prepare the kernel structures
+    JSR [init_kernel]
+
+    SET SP, 0xFEEE ; Kickstarter stack (only needs 1 word) ¿0x0001?
+                   ; (may be overriden sometime in the future)
+
+    ; Test
+    ; Add task 1
+    SET A, task1
+    JSR [add_task]
+
+    ; Add task 2
+    SET A, task2
+    JSR [add_task]
+
+    ; Delegate! :P
+    JSR [start_coop]
+
+
+; IO tests
+;;;;;;;;;;
+; Task 1 ;
+;;;;;;;;;;
+:task1
+
+    SET X, 5
+
+:loop1
+    MOD X, 26
+
+    SET A, 0x7041
+    ADD A, X
+    JSR [putchar]
+    JSR [coop]
+
+    ADD X, 1
+    SET PC, loop1
+
+
+;;;;;;;;;;
+; Task 2 ;
+;;;;;;;;;;
+:task2
+
+    SET X, 10
+
+:loop2
+    MOD X, 10
+
+    SET A, 0x7030
+    ADD A, X
+    JSR [putchar]
+    JSR [coop]
+
+    ADD X, 1
+    SET PC, loop2

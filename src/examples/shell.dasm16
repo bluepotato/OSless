@@ -1,0 +1,73 @@
+;;;;;;;;;;;;;;;;;;;
+; Bootup secuence ;
+;;;;;;;;;;;;;;;;;;;
+:kickstarter
+
+    ; Prepare the kernel structures
+    JSR [init_kernel]
+
+    SET SP, 0xFEEE ; Kickstarter stack (only needs 1 word) ¿0x0001?
+                   ; (may be overriden sometime in the future)
+
+    ; Test
+    ; Add task 1
+    SET A, shell
+    JSR [add_task]
+
+    ; Add task 2
+    SET A, flipper
+    JSR [add_task]
+
+    ; Delegate! :P
+    JSR [start_coop]
+
+
+; Shell tests (just prints what it reads)
+:clear_str
+    dat "clear"
+    dat 0
+
+:shell
+:shell_loop
+    SET A, 0x7024 ; $
+    JSR [putchar]
+
+    SET A, 0x7020 ; <space>
+    JSR [putchar]
+
+    SET A, 1 ; Write to stdout
+
+    JSR [getline]
+    SET X, A
+    JSR [endline]
+
+    ; Not implemented yet
+    ;SET A, X
+    ;SET B, clear_str
+    ;JSR [strcmp]
+
+    ;IFN A, 0
+    ;  JSR [clear_screen]
+
+    SET PC, shell_loop
+
+
+; Multitask demo
+:flipper_chars
+    dat 0x702f
+    dat 0x707c
+    dat 0x705c
+
+:flipper
+    SET X, 0
+
+:flipper_loop
+    SET A, [flipper_chars + X]
+    SET [0x81ff], A
+
+    JSR [coop]
+
+    ADD X, 1
+    MOD X, 3
+    SET PC, flipper_loop
+

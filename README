@@ -1,0 +1,40 @@
+OSless is a kernel library written for the DCPU16 processor featuring
+ multitasking (cooperative, due to the interruptless nature of the processor),
+ IO, string comparison, memory segment management.
+
+Functions so far:
+ - init_kernel: Initializes the kernel structures.
+ - add_task: Adds a task to the list (pass the first instruction in A).
+ - start_coop: Ends the boot secuence and delegates to the kernel (at this point
+            some task must have been added).
+    * Doesn't return.
+ 
+ - exit: Exits current task.
+    * Doesn't return (unexpected? :P).
+
+ - coop: May switch to another task.
+ - getchar: Waits for a character input and returns it on A.
+    * May switch to another task.
+    
+ - getline: Reads a line to the stack address (starts 3 positions below SP), and
+            returns it's position on A and it's size on B.
+    * May switch to another task.
+
+ - putchar: Prints a character to the screen (defined on A).
+ - endline: Jumps to the next line.
+ - strcmp: Compares the 0 ended strings pointed by A and B.
+Limits:
+ - No virtual memory.
+ - No user-space.
+
+Segment structure:
+ - [Segment]: Size of segment (in words).
+ - [Segment + 1]: Previous segment (0 for no one).
+ - [Segment + 2]: Next segment (0 for no one).
+
+Todo:
+ - malloc: Returns a segment with the size specified in A.
+ - free: Frees a memory segment pointed by A.
+
+ - Implement exit.
+ - Free on exit.
